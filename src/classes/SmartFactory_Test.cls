@@ -18,7 +18,7 @@
 private class SmartFactory_Test {
 	static {
 		SmartFactory.FillAllFields = true; // increase test coverage without creating custom objects
-	}  
+	}
 	
 	static testMethod void createsSingleObjectWithSingleRequiredStringField() {
 		Account account = (Account)SmartFactory.createSObject('Account');
@@ -47,29 +47,15 @@ private class SmartFactory_Test {
 		} catch (UnsupportedObjectTypeException ex) {
 			System.assert(true);
 		}
-	}
-	
-	static testMethod void creating401UniqueRecords() {
-		
-		List<SObject> contactsAsSObjects = SmartFactory.createSObjectList('Contact', false, 401);
-		insert contactsAsSObjects;
-		for (SObject s : contactsAsSObjects)
-		{
-			Contact c = (Contact) s;
-			System.assert(c.Id != null);
-		}
 	}  
 	
-	/**
-		Reproduces this issue
-		https://github.com/mbotos/SmartFactory-for-Force.com/issues/3
-	*/
-/*
-    static testMethod void loadTestWith100PlusAccountNContacts() {
+    static testMethod void loadTestWith100PlusAccount() {
     	for (Integer idx = 0; idx <= 101; idx++)
     		Account account = (Account)SmartFactory.createSObject('Account');
+    }
+
+    static testMethod void loadTestWith100PlusContact() {
 		for (Integer idx = 0; idx <= 101; idx++)
     		Contact cont = (Contact)SmartFactory.createSObject('Contact');    		
     }
-*/
 }
