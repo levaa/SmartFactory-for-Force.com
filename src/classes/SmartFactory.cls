@@ -59,9 +59,9 @@ public with sharing class SmartFactory {
 		}
 
 		SObject obj = token.newSObject();		
-
+		Boolean isLinkedInObj = (obj.getSObjectType() == Account.sObjectType || obj.getSObjectType() == Contact.sObjectType || obj.getSObjectType() == Opportunity.sObjectType) ? true : false; 
 		for (Schema.SObjectField field : fieldMapFor(objectType).values()) {
-			setFieldValue(obj, field, cascade, counter);
+			setFieldValue(obj, field, cascade, counter, isLinkedInObj);
 		}
 
 		return obj;
@@ -132,14 +132,15 @@ public with sharing class SmartFactory {
 	}
 
 	static void setFieldValue(SObject obj, Schema.SObjectField field, boolean cascade) {
-		setFieldValue(obj, field, cascade, 0);
+		Boolean isLinkedInObj = (obj.getSObjectType() == Account.sObjectType || obj.getSObjectType() == Contact.sObjectType || obj.getSObjectType() == Opportunity.sObjectType || obj.getSObjectType() == Lead.sObjectType) ? true : false; 
+		setFieldValue(obj, field, cascade, 0, isLinkedInObj);
 	}
 
-	static void setFieldValue(SObject obj, Schema.SObjectField field, boolean cascade, Integer counter) {
+	static void setFieldValue(SObject obj, Schema.SObjectField field, boolean cascade, Integer counter, Boolean isLinkedInObj) {
 		Schema.DescribeFieldResult fieldDescribe = field.getDescribe();
 
 		if (fieldDescribe.isCreateable() && 
-			(
+			( 
 				isIncludedField(obj, fieldDescribe) || 
 				(
 					(
@@ -188,8 +189,10 @@ public with sharing class SmartFactory {
 				obj.put(field, 'test'+ string.valueof(math.roundtolong(math.random()*1000000)) ); 
 			} else if (fieldDescribe.getName() == 'UserName' && fieldDescribe.getType() == Schema.DisplayType.String) { 
 				obj.put(field, 'test'+ string.valueof(Userinfo.getOrganizationId())+ string.valueof(math.roundtolong(math.random()*1000000))+ string.valueof(Datetime.now()).replace('-','').replace(':','').replace(' ','')+'@test.com'); // was a@a.com
+			} else if (isLinkedInObj && fieldDescribe.getName() == 'LID__LinkedIn_Company_Id__c') {
+				obj.put(field, String.valueOf(counter)); 					
 			} else if (fieldDescribe.getType() == Schema.DisplayType.String) {
-				obj.put(field, counter.format()); 
+				obj.put(field, counter.format()); 					
 			} else if (fieldDescribe.getType() == Schema.DisplayType.Reference) {
 				String referenceObjectType = fieldDescribe.getReferenceTo()[0].getDescribe().getName();
 
